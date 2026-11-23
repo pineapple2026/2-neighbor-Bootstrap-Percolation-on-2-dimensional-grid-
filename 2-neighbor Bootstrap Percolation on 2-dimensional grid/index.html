@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10131b">
+    <title>2-이웃 부트스트랩 퍼콜레이션</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="game.js" defer></script>
+  </head>
+  <body>
+    <main id="game-view" class="app-shell">
+      <header class="site-header">
+        <a class="brand" href="#" aria-label="게임 처음으로">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span>GRID<span class="brand-light">LAB</span></span>
+        </a>
+        <span class="header-note">2-NEIGHBOR BOOTSTRAP PERCOLATION</span>
+      </header>
+
+      <section class="intro-panel panel" aria-labelledby="rules-title">
+        <div class="intro-copy">
+          <span class="eyebrow">HOW TO PLAY</span>
+          <h1 id="rules-title">작은 시작으로<br><span>격자를 물들여 보세요.</span></h1>
+          <ol class="rule-list">
+            <li><span>01</span> 빈 칸을 눌러 초기 활성 칸을 고르세요.</li>
+            <li><span>02</span> 상하좌우 이웃 2칸이 활성화되면 감염됩니다.</li>
+            <li><span>03</span> 시작을 눌러 모든 칸을 하늘색으로 채우세요.</li>
+          </ol>
+        </div>
+        <div class="preview-wrap">
+          <div class="preview-heading">
+            <span>RULE PREVIEW</span>
+            <span class="preview-live"><i></i> 자동 확산</span>
+          </div>
+          <div id="preview-grid" class="preview-grid" aria-label="2-이웃 규칙 미리보기"></div>
+          <p>대각선 두 칸에서 시작해<br>이웃으로 번져 나갑니다.</p>
+        </div>
+      </section>
+
+      <div class="play-layout">
+        <section class="game-panel panel" aria-labelledby="stage-title">
+          <div class="game-topline">
+            <div>
+              <span class="eyebrow" id="stage-kind">TUTORIAL</span>
+              <h2 id="stage-title">4×4 튜토리얼</h2>
+            </div>
+            <label class="stage-picker" id="stage-picker-wrap" hidden>
+              <span>STAGE</span>
+              <select id="stage-select" aria-label="퍼즐 맵 선택"></select>
+            </label>
+            <div class="progress-readout">
+              <strong id="progress-value">0%</strong>
+              <span>활성화</span>
+            </div>
+          </div>
+
+          <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+
+          <div class="game-meta">
+            <span id="stage-description">최소 4칸을 선택해 격자 전체를 채워 보세요.</span>
+            <span class="moves"><strong id="seed-count">0</strong><span>초기 선택</span></span>
+          </div>
+
+          <div id="grid" class="grid" role="grid" aria-label="4 곱하기 4 게임 격자"></div>
+
+          <div class="legend" aria-label="칸 상태 안내">
+            <span><i class="legend-seed"></i>내 초기 칸</span>
+            <span><i class="legend-spread"></i>확산된 칸</span>
+            <span><i class="legend-wall"></i>장애물</span>
+            <span><i class="legend-preset"></i>처음 활성 칸</span>
+          </div>
+
+          <div class="game-actions">
+            <button id="start-button" class="button button-primary" type="button">확산 시작</button>
+            <button id="stop-button" class="button button-secondary" type="button" hidden>확산 중지</button>
+            <button id="restore-button" class="button button-secondary" type="button">초기 배치로 복구</button>
+            <button id="reset-button" class="button button-quiet" type="button">완전 초기화</button>
+          </div>
+
+          <p id="game-message" class="game-message" role="status" aria-live="polite"></p>
+
+          <div id="clear-panel" class="clear-panel" hidden>
+            <div>
+              <span class="eyebrow">STAGE CLEARED</span>
+              <strong id="clear-message">클리어!</strong>
+            </div>
+            <form id="score-form" class="score-form">
+              <label class="sr-only" for="nickname">랭킹에 등록할 닉네임</label>
+              <input id="nickname" name="nickname" maxlength="16" placeholder="닉네임 (최대 16자)" autocomplete="nickname" required>
+              <button class="button button-primary" type="submit">랭킹 등록</button>
+            </form>
+            <button id="next-stage-button" class="button button-next" type="button" hidden>실전 8x8 맵으로 이동하기 <span aria-hidden="true">→</span></button>
+          </div>
+        </section>
+
+        <aside id="ranking-panel" class="ranking-panel panel" aria-labelledby="ranking-title">
+          <div class="ranking-heading">
+            <div>
+              <span class="eyebrow">LEADERBOARD</span>
+              <h2 id="ranking-title">랭킹</h2>
+            </div>
+            <span class="ranking-badge">BEST</span>
+          </div>
+          <p id="ranking-stage" class="ranking-stage">4×4 튜토리얼</p>
+          <div class="ranking-table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">순위</th><th scope="col">닉네임</th><th scope="col">초기 칸</th></tr>
+              </thead>
+              <tbody id="ranking-body"></tbody>
+            </table>
+          </div>
+          <p class="ranking-footnote">초기 칸을 적게 사용할수록 높은 순위!</p>
+        </aside>
+      </div>
+      <footer>한 칸씩, 연결의 규칙을 발견해 보세요.</footer>
+    </main>
+
+    <main id="admin-view" class="admin-shell" hidden>
+      <header class="site-header">
+        <a class="brand" href="#" aria-label="게임으로 돌아가기">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span>GRID<span class="brand-light">LAB</span></span>
+        </a>
+        <span class="header-note">ADMIN DASHBOARD</span>
+      </header>
+      <section class="admin-panel panel" aria-labelledby="admin-title">
+        <div class="ranking-heading">
+          <div>
+            <span class="eyebrow">ADMINISTRATION</span>
+            <h1 id="admin-title">랭킹 관리</h1>
+          </div>
+          <button id="admin-home-button" class="button button-secondary" type="button">게임으로 돌아가기</button>
+        </div>
+        <p class="admin-description">브라우저에 저장된 전체 스테이지 랭킹입니다.</p>
+        <div class="ranking-table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col">스테이지</th><th scope="col">순위</th><th scope="col">닉네임</th><th scope="col">초기 칸</th><th scope="col">관리</th></tr>
+            </thead>
+            <tbody id="admin-ranking-body"></tbody>
+          </table>
+        </div>
+        <p id="admin-message" class="game-message" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+  </body>
+</html>
